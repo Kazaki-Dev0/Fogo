@@ -1,0 +1,111 @@
+/* ============================================================
+   PROMETHEUS F.O.G.O. – Design Tokens
+   ============================================================ */
+
+:root {
+  /* ── Fundos ─────────────────────────────────────────────── */
+  --bg-0: #040A18;
+  --bg-1: #08122B;
+  --bg-2: #0C1B3D;
+
+  /* ── Painéis ────────────────────────────────────────────── */
+  --painel: rgba(10, 24, 54, 0.62);
+  --painel-solido: #0B1A38;
+  --painel-hover: rgba(15, 32, 70, 0.72);
+
+  /* ── Bordas ─────────────────────────────────────────────── */
+  --borda: rgba(56, 189, 248, 0.28);
+  --borda-forte: rgba(56, 189, 248, 0.55);
+  --borda-input: rgba(56, 189, 248, 0.35);
+
+  /* ── Sombras / Glow ─────────────────────────────────────── */
+  --glow: 0 0 0 1px rgba(56, 189, 248, 0.18),
+          0 8px 32px rgba(2, 8, 24, 0.55),
+          0 0 24px rgba(56, 189, 248, 0.10);
+  --glow-forte: 0 0 0 1px rgba(56, 189, 248, 0.35),
+                0 8px 40px rgba(2, 8, 24, 0.65),
+                0 0 40px rgba(56, 189, 248, 0.22);
+  --glow-critico: 0 0 0 1px rgba(239, 68, 68, 0.45),
+                  0 8px 32px rgba(2, 8, 24, 0.55),
+                  0 0 32px rgba(239, 68, 68, 0.25);
+
+  /* ── Texto ──────────────────────────────────────────────── */
+  --texto: #E6F0FF;
+  --texto-suave: #93A9CC;
+  --texto-mudo: #5F7499;
+
+  /* ── Cores de destaque ──────────────────────────────────── */
+  --ciano: #22D3EE;
+  --azul: #38BDF8;
+  --azul-forte: #3B82F6;
+  --roxo: #818CF8;
+
+  /* ── Status / Situação ──────────────────────────────────── */
+  --ok: #22C55E;
+  --atencao: #F59E0B;
+  --critico: #EF4444;
+  --info: #38BDF8;
+  --mudo: #6B7280;
+
+  /* ── Situações de equipamento ───────────────────────────── */
+  --sit-operacional: #22C55E;
+  --sit-mau-funcionamento: #F59E0B;
+  --sit-em-manutencao: #3B82F6;
+  --sit-desativado: #6B7280;
+  --sit-furtado: #EF4444;
+  --sit-nao-instalado: #94A3B8;
+
+  /* ── Raios ──────────────────────────────────────────────── */
+  --raio: 14px;
+  --raio-sm: 8px;
+  --raio-xs: 4px;
+  --raio-pill: 999px;
+
+  /* ── Espaçamentos ───────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Tipografia ─────────────────────────────────────────── */
+  --fonte-titulo: 'Rajdhani', system-ui, sans-serif;
+  --fonte-texto: 'Inter', system-ui, sans-serif;
+
+  /* ── Transições ─────────────────────────────────────────── */
+  --trans-rapida: 150ms ease;
+  --trans-normal: 250ms ease;
+  --trans-lenta: 400ms ease;
+
+  /* ── Z-index ─────────────────────────────────────────────── */
+  --z-header: 100;
+  --z-drawer: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+  --z-tooltip: 500;
+
+  /* ── Header ─────────────────────────────────────────────── */
+  --header-h: 64px;
+
+  /* ── Sidebar / Drawer ───────────────────────────────────── */
+  --drawer-w: 420px;
+}
+
+/* ── Linha de luz no topo dos painéis ───────────────────── */
+.fogo-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(56, 189, 248, 0.6) 40%,
+    rgba(34, 211, 238, 0.8) 50%,
+    rgba(56, 189, 248, 0.6) 60%,
+    transparent);
+  border-radius: var(--raio) var(--raio) 0 0;
+}

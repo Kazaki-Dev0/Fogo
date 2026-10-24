@@ -1,0 +1,31 @@
+﻿using Fogo.Api.Models;
+
+namespace Fogo.Api.Dtos;
+
+public class AlertaDto
+{
+    public int Id { get; set; }
+    public TipoAlerta Tipo { get; set; }
+    public Criticidade Criticidade { get; set; }
+    public string Titulo { get; set; } = string.Empty;
+    public string Descricao { get; set; } = string.Empty;
+    public StatusAlerta Status { get; set; }
+    public int? EquipamentoId { get; set; }
+    public string? EquipamentoSerie { get; set; }
+    public int? AgenteId { get; set; }
+    public int? RegiaoId { get; set; }
+    public string? RegiaoNome { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public DateTime CriadoEm { get; set; }
+    public DateTime? ReconhecidoEm { get; set; }
+    public DateTime? ResolvidoEm { get; set; }
+}
+
+public class EventoOperacionalDto
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public string Mensagem { get; set; } = string.Empty;
+    public Criticidade Criticidade { get; set; }
+}

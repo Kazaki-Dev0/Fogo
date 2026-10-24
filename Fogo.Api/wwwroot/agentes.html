@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentes – PROMETHEUS F.O.G.O.</title>
+  <meta name="description" content="Gestão de agentes de trânsito e segurança da cidade de Marília/SP – PROMETHEUS F.O.G.O." />
+
+  <!-- Leaflet (mini mapa picker) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+<div class="fogo-vinheta" aria-hidden="true"></div>
+
+<!-- Header montado por layout.js -->
+<header id="app-header" role="banner"></header>
+
+<main class="agentes-layout" id="main-agentes">
+
+  <!-- Cabeçalho da seção -->
+  <div class="agentes-header">
+    <h1 class="fogo-secao-titulo">
+      <span class="num">👮</span> Agentes de Trânsito e Segurança
+      <span class="linha" aria-hidden="true"></span>
+    </h1>
+    <button id="btn-novo-agente" class="fogo-btn fogo-btn--primario" type="button" aria-label="Cadastrar novo agente">
+      + Novo agente
+    </button>
+  </div>
+
+  <!-- Cards de resumo rápido -->
+  <div id="agentes-resumo" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:var(--space-3); margin-bottom:var(--space-5);" role="list" aria-label="Resumo de agentes"></div>
+
+  <!-- Filtros -->
+  <div class="agentes-filtros" role="search" aria-label="Filtros de agentes">
+    <div class="fogo-field">
+      <label class="fogo-label" for="ag-filtro-cargo">Cargo</label>
+      <select id="ag-filtro-cargo" class="fogo-select">
+        <option value="">Todos os cargos</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="ag-filtro-status">Status</label>
+      <select id="ag-filtro-status" class="fogo-select">
+        <option value="">Todos os status</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="ag-filtro-regiao">Região</label>
+      <select id="ag-filtro-regiao" class="fogo-select">
+        <option value="">Todas as regiões</option>
+      </select>
+    </div>
+    <div class="fogo-field" style="flex:2; min-width:180px;">
+      <label class="fogo-label" for="ag-busca">Busca</label>
+      <input id="ag-busca"
+             class="fogo-input"
+             type="search"
+             placeholder="Nome ou matrícula..."
+             aria-label="Busca por nome ou matrícula" />
+    </div>
+    <div style="display:flex; align-items:flex-end;">
+      <button id="ag-btn-limpar" class="fogo-btn fogo-btn--fantasma fogo-btn--sm" type="button" aria-label="Limpar filtros">
+        ✕ Limpar
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabela de agentes -->
+  <div class="fogo-tabela-wrapper">
+    <table class="fogo-tabela" id="tabela-agentes" aria-label="Lista de agentes">
+      <thead>
+        <tr>
+          <th scope="col">Nome</th>
+          <th scope="col">Matrícula</th>
+          <th scope="col">Cargo</th>
+          <th scope="col">Órgão</th>
+          <th scope="col">Status</th>
+          <th scope="col">Região</th>
+          <th scope="col">Última posição</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-agentes"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ── Modal de cadastro / edição ───────────────────────────── -->
+<div id="modal-agente"
+     class="fogo-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="ag-modal-titulo"
+     aria-hidden="true">
+  <div class="fogo-modal fogo-modal--lg">
+
+    <div class="fogo-modal__header">
+      <h2 class="fogo-modal__titulo" id="ag-modal-titulo">Novo agente</h2>
+      <button id="ag-modal-fechar"
+              class="fogo-modal__fechar"
+              type="button"
+              aria-label="Fechar modal">×</button>
+    </div>
+
+    <div class="fogo-modal__body">
+      <form id="form-agente" novalidate>
+        <div class="fogo-form-grid">
+
+          <!-- Dados pessoais -->
+          <div class="fogo-form-secao">Dados do agente</div>
+
+          <div class="fogo-field col-span-2">
+            <label class="fogo-label" for="ag-nome">Nome completo *</label>
+            <input id="ag-nome"
+                   class="fogo-input"
+                   type="text"
+                   name="nome"
+                   placeholder="Ex.: Carlos Souza"
+                   required
+                   aria-required="true" />
+            <span class="fogo-campo-erro" id="err-ag-nome"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-matricula">Matrícula *</label>
+            <input id="ag-matricula"
+                   class="fogo-input"
+                   type="text"
+                   name="matricula"
+                   placeholder="Ex.: AGT-0156"
+                   required
+                   aria-required="true" />
+            <span class="fogo-campo-erro" id="err-ag-matricula"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-telefone">Telefone</label>
+            <input id="ag-telefone"
+                   class="fogo-input"
+                   type="tel"
+                   name="telefone"
+                   placeholder="(14) 99999-0000"
+                   maxlength="15" />
+          </div>
+
+          <!-- Função -->
+          <div class="fogo-form-secao">Função e órgão</div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-cargo">Cargo *</label>
+            <select id="ag-cargo"
+                    class="fogo-select"
+                    name="cargo"
+                    required
+                    aria-required="true">
+              <option value="">Selecione o cargo</option>
+            </select>
+            <span class="fogo-campo-erro" id="err-ag-cargo"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-orgao">Órgão</label>
+            <select id="ag-orgao" class="fogo-select" name="orgao">
+              <option value="">Selecione o órgão</option>
+            </select>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-status">Status</label>
+            <select id="ag-status" class="fogo-select" name="status">
+              <option value="">Selecione o status</option>
+            </select>
+          </div>
+
+          <!-- Posição -->
+          <div class="fogo-form-secao">Posição atual</div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-latitude">Latitude</label>
+            <input id="ag-latitude"
+                   class="fogo-input"
+                   type="number"
+                   name="latitude"
+                   step="any"
+                   placeholder="-22.2171" />
+            <span class="fogo-campo-erro" id="err-ag-lat"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="ag-longitude">Longitude</label>
+            <input id="ag-longitude"
+                   class="fogo-input"
+                   type="number"
+                   name="longitude"
+                   step="any"
+                   placeholder="-49.9501" />
+            <span class="fogo-campo-erro" id="err-ag-lon"></span>
+          </div>
+
+          <!-- Mini mapa -->
+          <div class="col-span-2">
+            <span class="fogo-label" style="display:block; margin-bottom:6px;">
+              Mapa (clique para definir posição)
+            </span>
+            <div id="ag-mapa-picker"
+                 class="fogo-mapa-picker"
+                 style="height:220px;"
+                 aria-label="Mini mapa para posicionar o agente"
+                 tabindex="0"></div>
+          </div>
+
+        </div><!-- /fogo-form-grid -->
+
+        <div id="ag-form-erro"
+             class="fogo-form-erro"
+             role="alert"
+             style="margin-top:var(--space-4);"></div>
+      </form>
+    </div><!-- /modal__body -->
+
+    <div class="fogo-modal__rodape">
+      <button id="btn-cancelar-agente"
+              class="fogo-btn fogo-btn--fantasma"
+              type="button">Cancelar</button>
+      <button id="btn-salvar-agente"
+              class="fogo-btn fogo-btn--primario"
+              type="submit"
+              form="form-agente">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-texto">Salvar agente</span>
+      </button>
+    </div>
+
+  </div><!-- /fogo-modal -->
+</div><!-- /modal-overlay -->
+
+<!-- ── Modal de confirmação global ──────────────────────────── -->
+<div id="modal-confirmar"
+     class="fogo-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-hidden="true"
+     aria-labelledby="confirmar-titulo">
+  <div class="fogo-modal fogo-modal--sm">
+    <div class="fogo-modal__header">
+      <h2 class="fogo-modal__titulo" id="confirmar-titulo">Confirmar ação</h2>
+    </div>
+    <div class="fogo-modal__body">
+      <p id="confirmar-mensagem" style="color:var(--texto-suave);"></p>
+    </div>
+    <div class="fogo-modal__rodape">
+      <button id="btn-confirmar-nao" class="fogo-btn fogo-btn--fantasma" type="button">Cancelar</button>
+      <button id="btn-confirmar-sim" class="fogo-btn fogo-btn--perigo" type="button">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="/js/agentes.js"></script>
+</body>
+</html>

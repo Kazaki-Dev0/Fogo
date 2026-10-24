@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acesso ao sistema – PROMETHEUS F.O.G.O.</title>
+  <meta name="description" content="Acesse o sistema PROMETHEUS F.O.G.O. – Ferramenta Onisciente de Gestão e Operações da cidade de Marília/SP." />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+  <div class="fogo-vinheta" aria-hidden="true"></div>
+
+  <main class="fogo-login-bg" id="main-login">
+    <div id="login-card" class="fogo-panel" style="padding: var(--space-8);">
+
+      <!-- Marca -->
+      <div class="login-brand" aria-label="PROMETHEUS F.O.G.O. – Cidades mais inteligentes, seguras e humanas">
+        <div class="login-brand__prometheus">PROMETHEUS</div>
+        <div class="login-brand__fogo">F.O.G.O.</div>
+        <div class="login-brand__lema">Cidades mais inteligentes, seguras e humanas</div>
+        <div class="login-brand__cidade">Marília / SP</div>
+      </div>
+
+      <!-- Status da API -->
+      <div id="login-status-api" class="verificando" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="login-status-texto">Verificando servidor…</span>
+      </div>
+
+      <!-- Instruções -->
+      <div id="bloco-instrucoes" aria-label="Instruções de acesso">
+        <div class="instrucao-linha">
+          <strong>Primeiro acesso?</strong>
+          1) Clique em <em>Criar conta</em>. 2) Preencha nome, e-mail e uma senha com no mínimo 8 caracteres, com letra e número. 3) Ao concluir, você já entra automaticamente.
+        </div>
+        <div class="instrucao-linha">
+          <strong>Já tem conta?</strong>
+          Informe e-mail e senha e clique em <em>Entrar</em>.
+        </div>
+        <div class="instrucao-linha">
+          <strong>Quer só conhecer o sistema?</strong>
+          Use a conta de demonstração: <code style="color:var(--ciano);">admin@fogo.local</code> / <code style="color:var(--ciano);">Fogo@2026</code>.
+          <br />
+          <button id="btn-preencher-demo" class="fogo-btn fogo-btn--secundario fogo-btn--sm" style="margin-top: 8px;" type="button">
+            ⚡ Preencher conta de demonstração
+          </button>
+        </div>
+      </div>
+
+      <!-- Abas -->
+      <div class="login-abas" role="tablist" aria-label="Modo de acesso">
+        <button id="tab-entrar"
+                class="login-aba ativa"
+                role="tab"
+                aria-selected="true"
+                aria-controls="form-login"
+                type="button">
+          Entrar
+        </button>
+        <button id="tab-criar-conta"
+                class="login-aba"
+                role="tab"
+                aria-selected="false"
+                aria-controls="form-registro"
+                type="button">
+          Criar conta
+        </button>
+      </div>
+
+      <!-- Formulário de login -->
+      <form id="form-login" class="login-form ativo" novalidate role="tabpanel" aria-labelledby="tab-entrar">
+        <div class="fogo-field">
+          <label class="fogo-label" for="login-email">E-mail</label>
+          <input id="login-email"
+                 class="fogo-input"
+                 type="email"
+                 name="email"
+                 autocomplete="email"
+                 placeholder="seu@email.com"
+                 required />
+          <span class="fogo-campo-erro" id="err-login-email"></span>
+        </div>
+
+        <div class="fogo-field">
+          <label class="fogo-label" for="login-senha">Senha</label>
+          <div class="fogo-input-senha">
+            <input id="login-senha"
+                   class="fogo-input"
+                   type="password"
+                   name="senha"
+                   autocomplete="current-password"
+                   placeholder="Sua senha"
+                   required />
+            <button id="login-toggle-senha"
+                    class="fogo-btn-toggle-senha"
+                    type="button"
+                    aria-label="Mostrar/ocultar senha">
+              👁️
+            </button>
+          </div>
+          <span class="fogo-campo-erro" id="err-login-senha"></span>
+        </div>
+
+        <div id="login-erro" class="login-erro" role="alert" aria-live="assertive"></div>
+
+        <button id="login-submit" class="fogo-btn fogo-btn--primario fogo-btn--lg" type="submit" style="width:100%;">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-texto">Entrar</span>
+        </button>
+      </form>
+
+      <!-- Formulário de registro -->
+      <form id="form-registro" class="login-form" novalidate role="tabpanel" aria-labelledby="tab-criar-conta">
+        <div class="fogo-field">
+          <label class="fogo-label" for="registro-nome">Nome completo</label>
+          <input id="registro-nome"
+                 class="fogo-input"
+                 type="text"
+                 name="nome"
+                 autocomplete="name"
+                 placeholder="Seu nome"
+                 required />
+          <span class="fogo-campo-erro" id="err-reg-nome"></span>
+        </div>
+
+        <div class="fogo-field">
+          <label class="fogo-label" for="registro-email">E-mail</label>
+          <input id="registro-email"
+                 class="fogo-input"
+                 type="email"
+                 name="email"
+                 autocomplete="email"
+                 placeholder="seu@email.com"
+                 required />
+          <span class="fogo-campo-erro" id="err-reg-email"></span>
+        </div>
+
+        <div class="fogo-field">
+          <label class="fogo-label" for="registro-senha">Senha</label>
+          <div class="fogo-input-senha">
+            <input id="registro-senha"
+                   class="fogo-input"
+                   type="password"
+                   name="senha"
+                   autocomplete="new-password"
+                   placeholder="Mínimo 8 caracteres, letra + número"
+                   required />
+            <button class="fogo-btn-toggle-senha" type="button" aria-label="Mostrar/ocultar senha">👁️</button>
+          </div>
+          <div id="registro-forca" class="fogo-forca-senha" aria-live="polite" aria-label="Força da senha">
+            <div class="fogo-forca-senha__barra"></div>
+            <div class="fogo-forca-senha__barra"></div>
+            <div class="fogo-forca-senha__barra"></div>
+            <span class="fogo-forca-senha__texto"></span>
+          </div>
+          <span class="fogo-campo-erro" id="err-reg-senha"></span>
+        </div>
+
+        <div class="fogo-field">
+          <label class="fogo-label" for="registro-senha2">Confirmar senha</label>
+          <div class="fogo-input-senha">
+            <input id="registro-senha2"
+                   class="fogo-input"
+                   type="password"
+                   name="senha2"
+                   autocomplete="new-password"
+                   placeholder="Repita a senha"
+                   required />
+            <button class="fogo-btn-toggle-senha" type="button" aria-label="Mostrar/ocultar confirmação">👁️</button>
+          </div>
+          <span class="fogo-campo-erro" id="err-reg-senha2"></span>
+        </div>
+
+        <div id="registro-erro" class="login-erro" role="alert" aria-live="assertive"></div>
+
+        <button id="registro-submit" class="fogo-btn fogo-btn--primario fogo-btn--lg" type="submit" style="width:100%;">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-texto">Criar conta e entrar</span>
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Inteligência Preditiva – PROMETHEUS F.O.G.O.</title>
+  <meta name="description" content="Inteligência preditiva para gestão proativa da cidade de Marília/SP – PROMETHEUS F.O.G.O. (em desenvolvimento)." />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+
+  <style>
+    /* Estilos exclusivos do placeholder preditivo */
+    .prev-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+
+    @media (max-width: 768px) {
+      .prev-grid { grid-template-columns: 1fr; }
+    }
+
+    .prev-painel {
+      position: relative;
+    }
+
+    /* Brilho pulsante no painel de risco (mapa) */
+    #painel-prev-risco-mapa {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+      #painel-prev-risco-mapa { grid-column: span 1; }
+    }
+
+    /* Efeito "em construção" com linhas diagonais */
+    .prev-placeholder-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      min-height: 160px;
+      color: var(--texto-mudo);
+      font-size: 0.82rem;
+      opacity: 0.55;
+      font-style: italic;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 10px,
+        rgba(56, 189, 248, 0.03) 10px,
+        rgba(56, 189, 248, 0.03) 20px
+      );
+      border-radius: var(--raio-sm);
+    }
+
+    .prev-placeholder-inner .icone-placeholder {
+      font-size: 2rem;
+      opacity: 0.4;
+    }
+
+    /* Badge "Em breve" */
+    .badge-em-breve {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: var(--raio-pill);
+      background: rgba(129, 140, 248, 0.12);
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      color: #A5B4FC;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Aviso central */
+    .prev-aviso-central {
+      text-align: center;
+      padding: var(--space-10) var(--space-6);
+      max-width: 640px;
+      margin: 0 auto var(--space-6);
+    }
+
+    .prev-aviso-central .aviso-emoji {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: var(--space-4);
+      filter: drop-shadow(0 0 16px rgba(129, 140, 248, 0.4));
+      animation: flutuante 3s ease-in-out infinite;
+    }
+
+    @keyframes flutuante {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    .prev-aviso-central h2 {
+      font-family: var(--fonte-titulo);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--texto-mudo);
+      margin-bottom: var(--space-3);
+    }
+
+    .prev-aviso-central p {
+      font-size: 0.9rem;
+      color: var(--texto-mudo);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto var(--space-4);
+    }
+
+    .prev-aviso-central .progresso-linha {
+      height: 3px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: var(--space-5);
+    }
+
+    .prev-aviso-central .progresso-fill {
+      height: 100%;
+      width: 35%;
+      background: linear-gradient(90deg, var(--roxo), var(--azul-forte));
+      border-radius: 2px;
+      animation: progresso-pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes progresso-pulse {
+      0%, 100% { opacity: 0.6; }
+      50%       { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aviso-emoji, .progresso-fill { animation: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="fogo-vinheta" aria-hidden="true"></div>
+
+<!-- Header montado por layout.js -->
+<header id="app-header" role="banner"></header>
+
+<main class="previsao-layout" id="main-previsao">
+
+  <!-- Título da seção -->
+  <h1 class="fogo-secao-titulo">
+    <span class="num">3.</span> Inteligência Preditiva da Cidade
+    <span class="linha" aria-hidden="true"></span>
+    <span class="badge-em-breve" aria-label="Módulo em desenvolvimento">🧠 Em breve</span>
+  </h1>
+
+  <!-- Aviso central -->
+  <div class="prev-aviso-central" role="status" aria-live="polite">
+    <span class="aviso-emoji" aria-hidden="true">🧠</span>
+    <h2>Módulo em desenvolvimento pela equipe</h2>
+    <p>
+      A <strong>Inteligência Preditiva</strong> do PROMETHEUS F.O.G.O. está sendo construída
+      para identificar padrões, prever falhas e antecipar ocorrências na cidade de Marília/SP
+      antes que se tornem problemas reais.
+    </p>
+    <p>
+      Os painéis abaixo estão reservados e serão ativados na <strong>Parte 3</strong> do projeto,
+      com modelos de IA treinados sobre os dados históricos de telemetria e ocorrências.
+    </p>
+    <div class="progresso-linha" aria-hidden="true">
+      <div class="progresso-fill"></div>
+    </div>
+    <p style="font-size:0.75rem; margin-top:var(--space-3);">35% concluído · Previsão: Sprint 3</p>
+  </div>
+
+  <!-- Grade de painéis reservados -->
+  <div class="prev-grid">
+
+    <!-- Mapa de risco (ocupa linha inteira) -->
+    <div id="painel-prev-risco-mapa" class="fogo-panel prev-painel">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">🗺 Mapa de risco</span>
+        <span class="badge-em-breve">Em breve</span>
+      </div>
+      <div class="fogo-panel__body" style="padding:0;">
+        <!-- ID reservado conforme contrato -->
+        <div id="prev-risco-mapa" class="prev-placeholder-inner" aria-label="Mapa de risco – em desenvolvimento">
+          <span class="icone-placeholder" aria-hidden="true">🗺️</span>
+          <span>Mapa de calor com pontuação de risco por região (IA)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fluxo de trânsito previsto -->
+    <div class="fogo-panel prev-painel">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">📈 Fluxo previsto</span>
+        <span class="badge-em-breve">Em breve</span>
+      </div>
+      <div class="fogo-panel__body" style="padding:0;">
+        <!-- ID reservado conforme contrato -->
+        <div id="prev-grafico-fluxo" class="prev-placeholder-inner" aria-label="Gráfico de fluxo de trânsito previsto – em desenvolvimento">
+          <span class="icone-placeholder" aria-hidden="true">📈</span>
+          <span>Gráfico de fluxo de trânsito previsto nas próximas 24 h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manutenção preditiva -->
+    <div class="fogo-panel prev-painel">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">🔧 Manutenção preditiva</span>
+        <span class="badge-em-breve">Em breve</span>
+      </div>
+      <div class="fogo-panel__body" style="padding:0;">
+        <!-- ID reservado conforme contrato -->
+        <div id="prev-manutencao" class="prev-placeholder-inner" aria-label="Painel de manutenção preditiva – em desenvolvimento">
+          <span class="icone-placeholder" aria-hidden="true">🔧</span>
+          <span>Equipamentos com risco de falha nos próximos 30 dias</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detecção de anomalias -->
+    <div class="fogo-panel prev-painel">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">⚡ Detecção de anomalias</span>
+        <span class="badge-em-breve">Em breve</span>
+      </div>
+      <div class="fogo-panel__body" style="padding:0;">
+        <!-- ID reservado conforme contrato -->
+        <div id="prev-anomalias" class="prev-placeholder-inner" aria-label="Painel de detecção de anomalias – em desenvolvimento">
+          <span class="icone-placeholder" aria-hidden="true">⚡</span>
+          <span>Comportamentos atípicos detectados por modelos de ML</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recomendações da IA -->
+    <div class="fogo-panel prev-painel" style="grid-column: span 2;">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">💡 Recomendações da IA</span>
+        <span class="badge-em-breve">Em breve</span>
+      </div>
+      <div class="fogo-panel__body" style="padding:0;">
+        <!-- ID reservado conforme contrato -->
+        <div id="prev-recomendacoes" class="prev-placeholder-inner" aria-label="Recomendações geradas pela IA – em desenvolvimento" style="min-height:120px;">
+          <span class="icone-placeholder" aria-hidden="true">💡</span>
+          <span>Ações sugeridas pela IA com base nos padrões detectados</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /prev-grid -->
+
+</main>
+
+<script type="module" src="/js/previsao.js"></script>
+</body>
+</html>

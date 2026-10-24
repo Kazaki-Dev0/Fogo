@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Inventário Inteligente – PROMETHEUS F.O.G.O.</title>
+  <meta name="description" content="Inventário inteligente de equipamentos de trânsito e segurança da cidade de Marília/SP." />
+
+  <!-- Leaflet (mini mapa picker) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+<div class="fogo-vinheta" aria-hidden="true"></div>
+
+<header id="app-header" role="banner"></header>
+
+<main class="equipamentos-layout" id="main-equipamentos">
+
+  <div class="equipamentos-header">
+    <h1 class="fogo-secao-titulo">
+      <span class="num">1.</span> Inventário Inteligente da Cidade
+      <span class="linha" aria-hidden="true"></span>
+    </h1>
+    <button id="btn-novo-equipamento" class="fogo-btn fogo-btn--primario" type="button" aria-label="Cadastrar novo equipamento">
+      + Novo equipamento
+    </button>
+  </div>
+
+  <!-- Cards por tipo -->
+  <div id="grid-tipos-resumo" role="list" aria-label="Resumo por tipo de equipamento"></div>
+
+  <!-- Filtros -->
+  <div class="equipamentos-filtros" role="search" aria-label="Filtros do inventário">
+    <div class="fogo-field">
+      <label class="fogo-label" for="eq-filtro-tipo">Tipo</label>
+      <select id="eq-filtro-tipo" class="fogo-select">
+        <option value="">Todos os tipos</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="eq-filtro-situacao">Situação</label>
+      <select id="eq-filtro-situacao" class="fogo-select">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="eq-filtro-regiao">Região</label>
+      <select id="eq-filtro-regiao" class="fogo-select">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="eq-filtro-orgao">Órgão</label>
+      <select id="eq-filtro-orgao" class="fogo-select">
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div class="fogo-field">
+      <label class="fogo-label" for="eq-filtro-manutencao">Manutenção</label>
+      <select id="eq-filtro-manutencao" class="fogo-select">
+        <option value="">Todas</option>
+        <option value="imediata">Imediata</option>
+        <option value="proxima">Próxima</option>
+      </select>
+    </div>
+    <div class="fogo-field" style="flex:2; min-width: 180px;">
+      <label class="fogo-label" for="eq-busca">Busca</label>
+      <input id="eq-busca" class="fogo-input" type="search" placeholder="Série, marca, modelo, rua..." aria-label="Busca livre" />
+    </div>
+    <div style="display:flex; align-items:flex-end;">
+      <button id="eq-btn-limpar" class="fogo-btn fogo-btn--fantasma fogo-btn--sm" type="button" aria-label="Limpar filtros">✕ Limpar</button>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="fogo-tabela-wrapper">
+    <table class="fogo-tabela" id="tabela-equipamentos" aria-label="Lista de equipamentos">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Número de série</th>
+          <th>Marca / Modelo</th>
+          <th>Bairro</th>
+          <th>Órgão</th>
+          <th>Situação</th>
+          <th>Manutenção</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-equipamentos"></tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  <div class="fogo-paginacao" id="eq-paginacao" style="margin-top: var(--space-4);" role="navigation" aria-label="Paginação do inventário">
+    <button id="eq-pagina-anterior" class="fogo-btn fogo-btn--secundario fogo-btn--sm" type="button" aria-label="Página anterior">← Anterior</button>
+    <span id="eq-info-pagina" class="fogo-paginacao__info" aria-live="polite"></span>
+    <button id="eq-pagina-proxima" class="fogo-btn fogo-btn--secundario fogo-btn--sm" type="button" aria-label="Próxima página">Próxima →</button>
+    <div class="fogo-field" style="min-width:auto;">
+      <label class="fogo-label" for="eq-tamanho">Por página</label>
+      <select id="eq-tamanho" class="fogo-select" aria-label="Itens por página">
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal de cadastro/edição -->
+<div id="modal-equipamento" class="fogo-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="eq-modal-titulo" aria-hidden="true">
+  <div class="fogo-modal fogo-modal--lg">
+    <div class="fogo-modal__header">
+      <h2 class="fogo-modal__titulo" id="eq-modal-titulo">Novo equipamento</h2>
+      <button class="fogo-modal__fechar" type="button" id="btn-cancelar-equipamento" aria-label="Fechar modal">×</button>
+    </div>
+    <div class="fogo-modal__body">
+      <form id="form-equipamento" novalidate>
+
+        <div class="fogo-form-grid">
+          <div class="fogo-form-secao">Identificação</div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-tipo">Tipo *</label>
+            <select id="eq-tipo" class="fogo-select" name="tipoCodigo" required aria-required="true">
+              <option value="">Selecione o tipo</option>
+            </select>
+            <span class="fogo-campo-erro" id="err-eq-tipo"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-numero-serie">Número de série *</label>
+            <input id="eq-numero-serie" class="fogo-input" type="text" name="numeroSerie" placeholder="ex.: CAM-1093" required aria-required="true" />
+            <span class="fogo-campo-erro" id="err-eq-serie"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-marca">Marca</label>
+            <input id="eq-marca" class="fogo-input" type="text" name="marca" placeholder="Ex.: Hikvision" />
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-modelo">Modelo</label>
+            <input id="eq-modelo" class="fogo-input" type="text" name="modelo" placeholder="Ex.: DS-2CD2746G2" />
+          </div>
+
+          <div class="fogo-form-secao">Localização</div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-cep">CEP</label>
+            <input id="eq-cep" class="fogo-input" type="text" name="cep" placeholder="00000-000" maxlength="9" />
+          </div>
+
+          <div class="fogo-field col-span-2" style="grid-column: span 1;">
+            <label class="fogo-label" for="eq-rua">Rua / Avenida</label>
+            <input id="eq-rua" class="fogo-input" type="text" name="rua" placeholder="Ex.: Av. Sampaio Vidal" />
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-bairro">Bairro</label>
+            <input id="eq-bairro" class="fogo-input" type="text" name="bairro" />
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-cidade">Cidade</label>
+            <input id="eq-cidade" class="fogo-input" type="text" name="cidade" placeholder="Marília" />
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-uf">UF</label>
+            <input id="eq-uf" class="fogo-input" type="text" name="uf" placeholder="SP" maxlength="2" />
+          </div>
+
+          <div class="fogo-field col-span-2">
+            <label class="fogo-label" for="eq-referencia">Referência / complemento</label>
+            <input id="eq-referencia" class="fogo-input" type="text" name="referencia"
+                   placeholder="ex.: oposto ao número 181, KM 203, S/N, em frente ao Mercado do Tio" />
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-latitude">Latitude *</label>
+            <input id="eq-latitude" class="fogo-input" type="number" name="latitude" step="any" placeholder="-22.2171" required aria-required="true" />
+            <span class="fogo-campo-erro" id="err-eq-lat"></span>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-longitude">Longitude *</label>
+            <input id="eq-longitude" class="fogo-input" type="number" name="longitude" step="any" placeholder="-49.9501" required aria-required="true" />
+            <span class="fogo-campo-erro" id="err-eq-lon"></span>
+          </div>
+
+          <!-- Mini mapa picker -->
+          <div class="col-span-2">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="fogo-label">Mapa (clique para definir coordenadas)</span>
+              <button id="btn-geocodificar" class="fogo-btn fogo-btn--secundario fogo-btn--sm" type="button" aria-label="Buscar coordenadas pelo endereço">
+                🔍 Buscar coordenadas pelo endereço
+              </button>
+            </div>
+            <div id="eq-mapa-picker" class="fogo-mapa-picker" aria-label="Mini mapa para selecionar coordenadas" tabindex="0"></div>
+          </div>
+
+          <div class="fogo-form-secao">Configuração</div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-orgao">Órgão responsável</label>
+            <select id="eq-orgao" class="fogo-select" name="orgao">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-situacao">Situação</label>
+            <select id="eq-situacao" class="fogo-select" name="situacao">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-necessidade-manutencao">Necessidade de manutenção</label>
+            <select id="eq-necessidade-manutencao" class="fogo-select" name="necessidadeManutencao">
+              <option value="">Selecione</option>
+            </select>
+          </div>
+
+          <div class="fogo-field">
+            <label class="fogo-label" for="eq-proxima-manutencao">Próxima manutenção</label>
+            <input id="eq-proxima-manutencao" class="fogo-input" type="date" name="proximaManutencao" />
+          </div>
+
+          <!-- Campos dinâmicos gerados pelo tipo -->
+          <div id="eq-campos-dinamicos" class="col-span-2"></div>
+        </div>
+
+        <div id="eq-form-erro" class="fogo-form-erro" role="alert" style="margin-top: var(--space-4);"></div>
+      </form>
+    </div>
+    <div class="fogo-modal__rodape">
+      <button type="button" id="btn-cancelar-eq-rodape" class="fogo-btn fogo-btn--fantasma">Cancelar</button>
+      <button type="submit" form="form-equipamento" id="btn-salvar-equipamento" class="fogo-btn fogo-btn--primario">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-texto">Salvar equipamento</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmação de exclusão -->
+<div id="modal-confirmar" class="fogo-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirmar-titulo">
+  <div class="fogo-modal fogo-modal--sm">
+    <div class="fogo-modal__header">
+      <h2 class="fogo-modal__titulo" id="confirmar-titulo">Confirmar exclusão</h2>
+    </div>
+    <div class="fogo-modal__body">
+      <p id="confirmar-mensagem" style="color: var(--texto-suave);"></p>
+    </div>
+    <div class="fogo-modal__rodape">
+      <button id="btn-confirmar-nao" class="fogo-btn fogo-btn--fantasma" type="button">Cancelar</button>
+      <button id="btn-confirmar-sim" class="fogo-btn fogo-btn--perigo" type="button">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="/js/equipamentos.js"></script>
+</body>
+</html>

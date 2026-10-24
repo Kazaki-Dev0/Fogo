@@ -1,0 +1,404 @@
+/* ============================================================
+   PROMETHEUS F.O.G.O. – Base, Reset, Tipografia, Layout
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--fonte-texto);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--texto);
+  background-color: var(--bg-0);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Fundo com gradiente, grade e vinheta ───────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, var(--bg-2) 0%, var(--bg-0) 80%);
+  pointer-events: none;
+  z-index: -3;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Vinheta */
+.fogo-vinheta {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(4, 10, 24, 0.85) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Tipografia ─────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--texto);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+  color: var(--azul);
+  text-decoration: none;
+  transition: color var(--trans-rapida);
+}
+a:hover { color: var(--ciano); }
+a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 2px; }
+
+p { color: var(--texto-suave); }
+
+strong { font-weight: 600; color: var(--texto); }
+
+img, svg { display: block; max-width: 100%; }
+
+button { cursor: pointer; font-family: var(--fonte-texto); }
+
+input, select, textarea {
+  font-family: var(--fonte-texto);
+  font-size: inherit;
+  color: var(--texto);
+}
+
+/* ── Scrollbar customizado ──────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.55); }
+
+/* ── Foco acessível ─────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--azul);
+  outline-offset: 2px;
+  border-radius: var(--raio-xs);
+}
+
+/* ── Layout geral ───────────────────────────────────────── */
+.fogo-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.fogo-main {
+  margin-top: var(--header-h);
+  flex: 1;
+  padding: var(--space-6);
+  max-width: 1600px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.fogo-main--full {
+  max-width: 100%;
+  padding: var(--space-4);
+}
+
+/* ── Header / Nav ───────────────────────────────────────── */
+#app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(4, 10, 24, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: 0 var(--space-6);
+  z-index: var(--z-header);
+}
+
+/* Marca */
+#brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#brand .brand-prometheus {
+  font-family: var(--fonte-titulo);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  color: var(--ciano);
+  text-transform: uppercase;
+}
+
+#brand .brand-fogo {
+  font-family: var(--fonte-titulo);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--texto);
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #E6F0FF 30%, var(--azul) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#brand .brand-cidade {
+  font-size: 0.6rem;
+  color: var(--texto-mudo);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Nav */
+#nav-principal {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+#nav-principal a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--raio-sm);
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  transition: all var(--trans-normal);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+#nav-principal a:hover {
+  color: var(--texto);
+  background: rgba(56, 189, 248, 0.08);
+  border-color: var(--borda);
+}
+
+#nav-principal a[aria-current="page"] {
+  color: var(--ciano);
+  background: rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+/* Relógio */
+#relogio {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: var(--ciano);
+  flex-shrink: 0;
+}
+
+/* Indicador tempo real */
+#realtime-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texto-mudo);
+  flex-shrink: 0;
+}
+
+#realtime-indicator .rt-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mudo);
+  transition: background var(--trans-normal);
+}
+
+#realtime-indicator.rt-ao-vivo .rt-dot {
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  animation: pulso 2s ease infinite;
+}
+
+#realtime-indicator.rt-reconectando .rt-dot {
+  background: var(--atencao);
+  box-shadow: 0 0 8px var(--atencao);
+}
+
+#realtime-indicator.rt-ao-vivo { color: var(--ok); }
+#realtime-indicator.rt-reconectando { color: var(--atencao); }
+
+/* Usuário e logout */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+#user-nome {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+#user-nome .user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+#user-nome .user-perfil {
+  font-size: 0.65rem;
+  color: var(--ciano);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#btn-logout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--raio-sm);
+  color: #FCA5A5;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all var(--trans-rapida);
+}
+
+#btn-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #FEE2E2;
+}
+
+/* ── Seção título ────────────────────────────────────────── */
+.fogo-secao-titulo {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin-bottom: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.fogo-secao-titulo .num {
+  color: var(--ciano);
+  font-size: 1.3rem;
+}
+
+.fogo-secao-titulo .linha {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--borda), transparent);
+}
+
+/* ── Animações ──────────────────────────────────────────── */
+@keyframes pulso {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+@keyframes pulso-marcador {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes entrada-slide-baixo {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes entrada-slide-direita {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes contagem {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes highlight-novo {
+  0% { background: rgba(34, 211, 238, 0.2); }
+  100% { background: transparent; }
+}
+
+/* Respeitar prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Responsivo ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  #app-header { gap: var(--space-3); padding: 0 var(--space-4); }
+  #brand .brand-fogo { font-size: 1.1rem; }
+  #realtime-indicator span { display: none; }
+}
+
+@media (max-width: 640px) {
+  .fogo-main { padding: var(--space-4) var(--space-3); }
+  #nav-principal a span { display: none; }
+  #nav-principal a { padding: var(--space-2); }
+  #user-nome .user-name { display: none; }
+}

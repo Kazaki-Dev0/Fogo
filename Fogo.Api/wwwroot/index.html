@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. Centro de Operações – PROMETHEUS F.O.G.O.</title>
+  <meta name="description" content="Centro de operações em tempo real da cidade de Marília/SP – equipamentos, agentes, alertas e ocorrências." />
+
+  <!-- Leaflet 1.9.4 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet.markercluster 1.5.3 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+
+  <!-- Estilos adicionais do mapa -->
+  <style>
+    .leaflet-control-attribution { font-size: 9px !important; background: rgba(4,10,24,0.8) !important; color: #5F7499 !important; }
+    .leaflet-control-attribution a { color: #38BDF8 !important; }
+    .marcador-critico { animation: pulso-marcador 1.5s ease infinite; }
+    .leaflet-marker-icon { cursor: pointer; }
+    @keyframes pulso-marcador {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+  </style>
+</head>
+<body>
+<div class="fogo-vinheta" aria-hidden="true"></div>
+
+<!-- Header (montado por layout.js) -->
+<header id="app-header" role="banner"></header>
+
+<div class="dashboard-layout">
+
+  <!-- ── KPIs ──────────────────────────────────────────────── -->
+  <section id="painel-kpis" aria-label="Indicadores-chave de desempenho">
+
+    <!-- Disponibilidade (anel) -->
+    <div class="fogo-panel fogo-kpi" id="kpi-disponibilidade" style="grid-row: span 1;">
+      <div class="fogo-kpi__anel" aria-label="Disponibilidade dos equipamentos">
+        <svg viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="fogo-kpi__anel-trilha" cx="40" cy="40" r="32"/>
+          <circle id="kpi-anel-progresso" class="fogo-kpi__anel-progresso" cx="40" cy="40" r="32"
+                  stroke-dasharray="201.06"
+                  stroke-dashoffset="201.06"/>
+        </svg>
+        <div class="fogo-kpi__anel-texto">
+          <span id="kpi-disponibilidade-pct" class="fogo-kpi__anel-num">—%</span>
+          <span class="fogo-kpi__anel-pct">online</span>
+        </div>
+      </div>
+      <span class="fogo-kpi__rotulo">Equipamentos online</span>
+    </div>
+
+    <!-- Agentes em campo -->
+    <div class="fogo-panel fogo-kpi fogo-kpi--ciano">
+      <span id="kpi-agentes-campo" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Agentes em campo</span>
+    </div>
+
+    <!-- Alertas ativos -->
+    <div class="fogo-panel fogo-kpi fogo-kpi--critico">
+      <span class="fogo-kpi__valor">
+        <span aria-hidden="true">⚠</span>
+        <span id="kpi-alertas-ativos">—</span>
+      </span>
+      <span class="fogo-kpi__rotulo">Alertas ativos</span>
+    </div>
+
+    <!-- Ocorrências hoje -->
+    <div class="fogo-panel fogo-kpi">
+      <span id="kpi-ocorrencias-hoje" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Ocorrências hoje</span>
+    </div>
+
+    <!-- Total equipamentos -->
+    <div class="fogo-panel fogo-kpi">
+      <span id="kpi-total-equipamentos" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Total de equipamentos</span>
+    </div>
+
+    <!-- Operacionais -->
+    <div class="fogo-panel fogo-kpi fogo-kpi--ok">
+      <span id="kpi-operacionais" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Operacionais</span>
+    </div>
+
+    <!-- Indisponíveis -->
+    <div class="fogo-panel fogo-kpi fogo-kpi--atencao">
+      <span id="kpi-indisponiveis" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Indisponíveis</span>
+    </div>
+
+    <!-- Manutenção imediata -->
+    <div class="fogo-panel fogo-kpi fogo-kpi--critico">
+      <span id="kpi-manutencao-imediata" class="fogo-kpi__valor">—</span>
+      <span class="fogo-kpi__rotulo">Manutenção imediata</span>
+    </div>
+
+  </section>
+
+  <!-- ── Corpo principal: 3 colunas ────────────────────────── -->
+  <div class="dashboard-corpo">
+
+    <!-- Coluna esquerda: tipos -->
+    <aside id="painel-tipos" class="fogo-panel" aria-label="Filtro por tipo de equipamento">
+      <div class="fogo-panel__header">
+        <span class="fogo-panel__titulo">Tipos</span>
+      </div>
+      <div class="painel-tipos-lista" id="lista-tipos" role="list"></div>
+    </aside>
+
+    <!-- Coluna central: mapa e filtros -->
+    <section class="dashboard-col-centro" aria-label="Mapa de operações">
+
+      <!-- Filtros -->
+      <div id="barra-filtros" role="search" aria-label="Filtros do mapa">
+        <select id="filtro-tipo" class="fogo-select" aria-label="Filtrar por tipo">
+          <option value="">Todos os tipos</option>
+        </select>
+        <select id="filtro-situacao" class="fogo-select" aria-label="Filtrar por situação">
+          <option value="">Todas as situações</option>
+        </select>
+        <select id="filtro-regiao" class="fogo-select" aria-label="Filtrar por região">
+          <option value="">Todas as regiões</option>
+        </select>
+        <select id="filtro-bairro" class="fogo-select" aria-label="Filtrar por bairro">
+          <option value="">Todos os bairros</option>
+        </select>
+        <select id="filtro-orgao" class="fogo-select" aria-label="Filtrar por órgão">
+          <option value="">Todos os órgãos</option>
+        </select>
+        <input id="filtro-busca" class="fogo-input" type="search" placeholder="Buscar série, marca..." aria-label="Busca por série, marca ou modelo" style="flex:1;min-width:140px;" />
+        <select id="filtro-manutencao" class="fogo-select" aria-label="Filtrar por manutenção">
+          <option value="">Todas</option>
+          <option value="imediata">Manutenção imediata</option>
+          <option value="proxima">Manutenção próxima</option>
+        </select>
+        <button id="btn-limpar-filtros" class="fogo-btn fogo-btn--fantasma fogo-btn--sm" type="button" aria-label="Limpar filtros">✕ Limpar</button>
+        <span id="contador-mapa" aria-live="polite"></span>
+      </div>
+
+      <!-- Camadas -->
+      <div id="barra-camadas" aria-label="Camadas do mapa" role="group">
+        <label class="fogo-toggle" title="Equipamentos">
+          <input type="checkbox" id="toggle-equipamentos" checked aria-label="Mostrar equipamentos" />
+          <span class="fogo-toggle__slider"></span>
+          <span class="fogo-toggle__label">📦 Equipamentos</span>
+        </label>
+        <label class="fogo-toggle" title="Agentes">
+          <input type="checkbox" id="toggle-agentes" checked aria-label="Mostrar agentes" />
+          <span class="fogo-toggle__slider"></span>
+          <span class="fogo-toggle__label">👮 Agentes</span>
+        </label>
+        <label class="fogo-toggle" title="Cluster">
+          <input type="checkbox" id="toggle-cluster" checked aria-label="Agrupar marcadores" />
+          <span class="fogo-toggle__slider"></span>
+          <span class="fogo-toggle__label">🔵 Cluster</span>
+        </label>
+        <label class="fogo-toggle" title="Heatmap">
+          <input type="checkbox" id="toggle-heatmap" aria-label="Mapa de calor" />
+          <span class="fogo-toggle__slider"></span>
+          <span class="fogo-toggle__label">🔥 Calor</span>
+        </label>
+        <label class="fogo-toggle" title="Regiões">
+          <input type="checkbox" id="toggle-regioes" aria-label="Mostrar regiões" />
+          <span class="fogo-toggle__slider"></span>
+          <span class="fogo-toggle__label">🗺️ Regiões</span>
+        </label>
+      </div>
+
+      <!-- Mapa -->
+      <div style="position:relative; flex:1;">
+        <div id="mapa" aria-label="Mapa interativo da cidade de Marília"></div>
+        <div class="mapa-aviso-tiles" role="alert">⚠ Tiles do mapa indisponíveis – marcadores ainda funcionam</div>
+      </div>
+
+    </section>
+
+    <!-- Coluna direita -->
+    <aside class="dashboard-col-direita" aria-label="Painéis laterais">
+
+      <!-- Alertas -->
+      <div class="fogo-panel" id="painel-alertas">
+        <div class="fogo-panel__header">
+          <span class="fogo-panel__titulo">⚠ Alertas</span>
+        </div>
+        <div class="fogo-abas" style="padding: 0 var(--space-3); margin-bottom: 0;">
+          <button id="aba-alertas-todos" class="fogo-aba ativa" type="button">Todos</button>
+          <button id="aba-alertas-critico" class="fogo-aba" type="button" style="color: var(--critico);">Crítico</button>
+          <button id="aba-alertas-atencao" class="fogo-aba" type="button" style="color: var(--atencao);">Atenção</button>
+        </div>
+        <div id="lista-alertas" role="list" aria-label="Lista de alertas ativos"></div>
+      </div>
+
+      <!-- Manutenção -->
+      <div class="fogo-panel" id="painel-manutencao">
+        <div class="fogo-panel__header">
+          <span class="fogo-panel__titulo">🔧 Manutenção urgente</span>
+        </div>
+        <div id="lista-manutencao" role="list" aria-label="Lista de equipamentos com manutenção pendente"></div>
+      </div>
+
+      <!-- Regiões -->
+      <div class="fogo-panel" id="painel-regioes">
+        <div class="fogo-panel__header">
+          <span class="fogo-panel__titulo">🗺 Quais regiões exigem atenção?</span>
+        </div>
+        <div id="grid-regioes" role="list" aria-label="Status por região"></div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ── Inferior: gráficos e feed ─────────────────────────── -->
+  <div class="dashboard-inferior">
+
+    <!-- Rosca de situação -->
+    <div class="fogo-panel" style="padding: var(--space-4);">
+      <div class="fogo-panel__titulo" style="padding-bottom: var(--space-3); text-align:center;">Por situação</div>
+      <div class="grafico-container">
+        <canvas id="grafico-situacao" aria-label="Gráfico de equipamentos por situação"></canvas>
+      </div>
+    </div>
+
+    <!-- Barras por tipo -->
+    <div class="fogo-panel" style="padding: var(--space-4);">
+      <div class="fogo-panel__titulo" style="padding-bottom: var(--space-3); text-align:center;">Operacionais por tipo</div>
+      <div class="grafico-container">
+        <canvas id="grafico-tipos" aria-label="Gráfico de equipamentos operacionais por tipo"></canvas>
+      </div>
+    </div>
+
+    <!-- Feed ao vivo -->
+    <div class="fogo-panel" id="feed-wrapper">
+      <div class="fogo-panel__header">
+        <div class="feed-header">
+          <span class="feed-live-dot" aria-hidden="true"></span>
+          AO VIVO – Eventos operacionais
+        </div>
+      </div>
+      <div id="feed-eventos" role="log" aria-live="polite" aria-label="Feed de eventos operacionais em tempo real"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Drawer de detalhe ─────────────────────────────────── -->
+<aside id="drawer-detalhe" aria-label="Detalhes do item selecionado" aria-hidden="true" role="complementary">
+  <div class="drawer-header">
+    <h2 class="drawer-header__titulo">Detalhes</h2>
+    <div style="display:flex; gap:8px;">
+      <a id="btn-ver-inventario" class="fogo-btn fogo-btn--secundario fogo-btn--sm" aria-label="Ver no inventário">📦 Inventário</a>
+      <button id="btn-centralizar" class="fogo-btn fogo-btn--secundario fogo-btn--sm" type="button" aria-label="Centralizar no mapa">🎯</button>
+      <button id="btn-fechar-detalhe" class="fogo-btn fogo-btn--fantasma" type="button" aria-label="Fechar painel de detalhes">✕</button>
+    </div>
+  </div>
+  <div id="detalhe-conteudo" aria-live="polite"></div>
+</aside>
+
+<!-- ── Modo demonstração ──────────────────────────────────── -->
+<button id="btn-modo-demo" class="fogo-btn fogo-btn--secundario" type="button" aria-label="Abrir painel de demonstração" aria-expanded="false">
+  🎮 Demo
+</button>
+
+<div id="painel-demo" class="fogo-panel" role="complementary" aria-label="Painel de simulação para demonstração">
+  <div class="fogo-panel__header">
+    <span class="fogo-panel__titulo">🎮 Modo demonstração</span>
+  </div>
+  <div class="fogo-panel__body" style="display:flex; flex-direction:column; gap: var(--space-3);">
+    <p style="font-size: 0.75rem; color: var(--texto-mudo);">Use para demonstrar como o PROMETHEUS percebe eventos na cidade em tempo real.</p>
+    <button id="btn-simular-furto" class="fogo-btn fogo-btn--perigo fogo-btn--sm" type="button">🚨 Simular furto</button>
+    <button id="btn-simular-falha" class="fogo-btn fogo-btn--sm" style="background:rgba(245,158,11,.1);color:#FCD34D;border-color:rgba(245,158,11,.3);" type="button">⚠ Simular mau funcionamento</button>
+    <button id="btn-simular-offline" class="fogo-btn fogo-btn--sm" style="background:rgba(107,114,128,.1);color:#D1D5DB;border-color:rgba(107,114,128,.3);" type="button">📴 Simular offline</button>
+    <button id="btn-restaurar-todos" class="fogo-btn fogo-btn--secundario fogo-btn--sm" type="button">♻ Restaurar todos</button>
+  </div>
+</div>
+
+<!-- SignalR -->
+<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet.markercluster -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- Leaflet.heat -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>
