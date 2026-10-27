@@ -69,6 +69,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRegiaoService, RegiaoService>();
 builder.Services.AddScoped<IAlertaService, AlertaService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IPrevisaoService, PrevisaoService>();
 builder.Services.AddSingleton<ResumoNotificador>();
 builder.Services.AddScoped<SeedService>();
 builder.Services.AddScoped<HistoricoSeeder>();

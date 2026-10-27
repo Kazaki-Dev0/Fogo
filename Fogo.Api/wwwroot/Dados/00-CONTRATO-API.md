@@ -327,6 +327,68 @@ Regras de senha no cadastro: mínimo 8 caracteres, com pelo menos uma letra e um
 
 ---
 
-## 8. Parte 3 (reservado)
+---
 
-Prefixo `/api/previsao/*` e DTOs com `explicacao`. Veja o guia em `03-RESUMO-EQUIPE-E-GUIA-PARTE-3.md`.
+## 8. Parte 3 – Cidade Preditiva
+
+Todas as rotas exigem token (`[Authorize]`). Todas aceitam `forcar=true` (ignora o cache de 5 min).
+Toda resposta traz `geradoEm` (UTC) e `explicacao`.
+
+| Método e rota | Parâmetros | Função em `api.js` |
+|---|---|---|
+| `GET /api/previsao/risco-regioes` | `data` (yyyy-MM-dd, padrão amanhã) | `getPrevisaoRisco(filtros)` |
+| `GET /api/previsao/demanda-agentes` | `data` (padrão amanhã) | `getPrevisaoDemandaAgentes(filtros)` |
+| `GET /api/previsao/manutencao` | `top` (padrão 20) | `getPrevisaoManutencao(filtros)` |
+| `GET /api/previsao/anomalias` | `dias` (padrão 7) | `getPrevisaoAnomalias(filtros)` |
+| `GET /api/previsao/recomendacoes` | — | `getPrevisaoRecomendacoes(filtros)` |
+
+`explicacao`: `{ "oQuePreve": "...", "dadosUsados": ["..."], "comoAjuda": "..." }`
+
+**RiscoRegioes**
+```json
+{ "geradoEm": "...", "data": "2026-10-30", "diaSemana": "sexta-feira",
+  "faixas": [ { "indice": 8, "rotulo": "16:00-18:00" } ],
+  "itens": [ { "regiaoId": 1, "regiaoNome": "Centro", "faixaIndice": 8, "faixaRotulo": "16:00-18:00",
+               "score": 82, "nivel": "Alto", "fatores": ["Pico histórico às sextas-feiras nesta faixa"] } ],
+  "resumoRegioes": [ { "regiaoId": 1, "regiaoNome": "Centro", "latitude": -22.2171, "longitude": -49.9501,
+                       "scoreMaximo": 82, "nivelMaximo": "Alto", "faixaPico": "16:00-18:00" } ],
+  "totalAlto": 3, "explicacao": { } }
+```
+
+**DemandaAgentes**
+```json
+{ "geradoEm": "...", "dataPrevista": "2026-10-30", "agentesEmCampoAtual": 31,
+  "horas": [ { "hora": 17, "hoje": 4, "previsto": 5.2, "mediaSemana": 3.1, "agentesRecomendados": 8 } ],
+  "picos": [ { "hora": 17, "previsto": 5.2, "agentesRecomendados": 8 } ], "explicacao": { } }
+```
+(`hoje` é `null` para horas que ainda não aconteceram.)
+
+**ManutencaoPreditiva**
+```json
+{ "geradoEm": "...", "totalAvaliados": 236, "emRisco": 28, "percentualEmRisco": 11.9, "limiteRisco": 60,
+  "itens": [ { "equipamentoId": 3, "numeroSerie": "RAD-7842", "tipoCodigo": "radar", "tipoNome": "Radar de trânsito",
+               "marca": "Efkon", "modelo": "X1", "bairro": "Centro", "regiaoId": 1, "situacao": "MauFuncionamento",
+               "score": 88, "nivel": "Alto", "fatores": ["Manutenção atrasada há 12 dias"] } ],
+  "explicacao": { } }
+```
+
+**Anomalias**
+```json
+{ "geradoEm": "...", "dias": 7, "total": 2,
+  "itens": [ { "regiaoId": 1, "regiaoNome": "Centro", "inicio": "2026-10-23T21:00:00Z", "contagem": 7,
+               "esperado": 2.1, "desvioPadrao": 1.2, "z": 4.1,
+               "mensagem": "Centro: 7 ocorrências às 18h (esperado 2,1). 4,1 desvios acima do normal." } ],
+  "explicacao": { } }
+```
+
+**Recomendacoes**
+```json
+{ "geradoEm": "...", "total": 6,
+  "itens": [ { "id": "reforco-1-8", "prioridade": "Alta", "categoria": "Reforco",
+               "titulo": "Reforçar +2 agentes no Centro (16:00-18:00)",
+               "descricao": "Risco ALTO previsto. Hoje há 5 agentes em campo na região.",
+               "regiaoId": 1, "equipamentoId": null, "motivos": ["Score de risco 88"] } ],
+  "explicacao": { } }
+```
+`prioridade`: `Alta`, `Media`, `Baixa`. `categoria`: `Reforco`, `Manutencao`, `Anomalia`, `Operacao`.
+`nivel` usa o enum `NivelRisco` (`Baixo`, `Medio`, `Alto`).

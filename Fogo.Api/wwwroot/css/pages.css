@@ -584,3 +584,553 @@
 @media (max-width: 640px) {
   .previsao-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PREVISÃO – Inteligência Preditiva (implementada, Parte 3)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Barra de controles ──────────────────────────────────── */
+.prev-barra-controles {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  background: var(--painel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+  margin-bottom: var(--space-4);
+}
+
+.prev-barra-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.prev-input-data {
+  width: auto;
+  min-width: 160px;
+}
+
+.prev-gerado-em {
+  font-family: var(--fonte-titulo);
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding-bottom: 2px;
+}
+
+/* ── KPIs faixa ──────────────────────────────────────────── */
+.prev-kpis-faixa {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.prev-kpi-card {
+  padding: var(--space-4);
+  min-height: 130px;
+}
+
+@media (max-width: 1100px) {
+  .prev-kpis-faixa { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 580px) {
+  .prev-kpis-faixa { grid-template-columns: 1fr 1fr; }
+}
+
+/* Anel de atencao / critico nos KPI */
+.prev-anel--atencao { stroke: var(--atencao) !important; }
+.prev-anel--critico { stroke: var(--critico) !important; }
+.prev-anel-num--atencao { color: var(--atencao) !important; }
+.prev-anel-num--critico { color: var(--critico) !important; }
+
+/* ── Grade de painéis ────────────────────────────────────── */
+.prev-grade {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.prev-painel--largo {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1100px) {
+  .prev-grade { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .prev-grade { grid-template-columns: 1fr; }
+  .prev-painel--largo { grid-column: 1; }
+}
+
+/* ── Header de painel com ações ──────────────────────────── */
+.prev-header-acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.prev-select-faixa {
+  min-width: 200px;
+  font-size: 0.78rem;
+  padding: 4px 32px 4px 10px;
+  height: 30px;
+}
+
+.prev-btn-info {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  color: var(--texto-mudo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+  padding: 3px 10px;
+}
+.prev-btn-info:hover { color: var(--ciano); border-color: var(--borda-forte); }
+
+/* ── Bloco de explicação (colapsável) ────────────────────── */
+.prev-explicacao {
+  background: rgba(56, 189, 248, 0.05);
+  border-bottom: 1px solid var(--borda);
+  padding: var(--space-4) var(--space-5);
+  animation: fadeIn 0.2s ease;
+}
+
+.prev-explicacao-corpo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.prev-explicacao-bloco {
+  flex: 1;
+  min-width: 200px;
+}
+
+.prev-explicacao-label {
+  font-family: var(--fonte-titulo);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ciano);
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.prev-explicacao-bloco p {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.prev-explicacao-lista {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  line-height: 1.7;
+}
+
+/* ── Mapa de risco ───────────────────────────────────────── */
+.prev-mapa-corpo {
+  display: flex;
+  gap: 0;
+  min-height: 400px;
+}
+
+.prev-mapa-container {
+  flex: 1;
+  min-height: 400px;
+  position: relative;
+  border-radius: 0 0 0 var(--raio);
+}
+
+.prev-mapa-lateral {
+  width: 220px;
+  flex-shrink: 0;
+  padding: var(--space-4);
+  border-left: 1px solid var(--borda);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+@media (max-width: 800px) {
+  .prev-mapa-corpo { flex-direction: column; }
+  .prev-mapa-lateral { width: 100%; border-left: none; border-top: 1px solid var(--borda); }
+}
+
+.prev-legenda-risco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prev-legenda-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.prev-legenda-cor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Ranking de risco */
+.prev-risco-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prev-risco-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: rgba(56,189,248,.04);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+}
+
+.prev-risco-rank {
+  font-family: var(--fonte-titulo);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--texto-mudo);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.prev-risco-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.prev-risco-nome {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prev-risco-faixa {
+  font-size: 0.68rem;
+  color: var(--texto-mudo);
+}
+
+.prev-score-pill {
+  font-family: var(--fonte-titulo);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--raio-pill);
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Ranking extenso */
+.prev-ranking-titulo { margin-bottom: var(--space-2); }
+
+/* ── Gráfico de fluxo ────────────────────────────────────── */
+.prev-grafico-wrapper {
+  position: relative;
+  height: 260px;
+  margin-bottom: var(--space-4);
+}
+
+.prev-demanda-resumo {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prev-demanda-texto {
+  margin: 0;
+}
+
+.prev-pico-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(56,189,248,.1);
+  border: 1px solid rgba(56,189,248,.25);
+  color: var(--ciano);
+  font-family: var(--fonte-titulo);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--raio-pill);
+  margin: 2px;
+}
+
+/* ── Manutenção preditiva ────────────────────────────────── */
+.prev-manutencao-corpo {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.prev-manutencao-anel-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.fogo-kpi__anel--lg {
+  width: 100px;
+  height: 100px;
+}
+.fogo-kpi__anel--lg svg {
+  width: 100px;
+  height: 100px;
+}
+
+.prev-manutencao-legenda {
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.prev-manutencao-lista {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.prev-manutencao-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(56,189,248,.03);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+  transition: background var(--trans-rapida);
+}
+
+.prev-manutencao-item:hover {
+  background: rgba(56,189,248,.07);
+}
+
+.prev-manutencao-item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.prev-manutencao-serie {
+  font-family: var(--fonte-titulo);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.prev-manutencao-tipo {
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+}
+
+.prev-manutencao-marca {
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+  margin-left: auto;
+}
+
+/* Barra de score */
+.prev-score-barra-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.prev-score-barra {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--raio-pill);
+  transition: width var(--trans-normal);
+  background: var(--ok);
+}
+
+.prev-score-valor {
+  font-family: var(--fonte-titulo);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .prev-manutencao-corpo { flex-direction: column; }
+  .prev-manutencao-anel-wrapper { flex-direction: row; width: 100%; justify-content: flex-start; }
+}
+
+/* ── Fatores lista ───────────────────────────────────────── */
+.prev-fatores-lista {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: 0.75rem;
+  color: var(--texto-mudo);
+  line-height: 1.6;
+}
+
+/* ── Anomalias ────────────────────────────────────────────── */
+.prev-anomalias-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.prev-anomalia-card {
+  padding: var(--space-4);
+  background: rgba(245,158,11,.05);
+  border: 1px solid rgba(245,158,11,.2);
+  border-left: 3px solid var(--atencao);
+  border-radius: var(--raio-sm);
+}
+
+.prev-anomalia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  gap: var(--space-3);
+}
+
+.prev-anomalia-regiao {
+  font-family: var(--fonte-titulo);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.prev-anomalia-hora {
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+}
+
+.prev-anomalia-msg {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+  line-height: 1.55;
+  margin: 0 0 var(--space-2);
+}
+
+.prev-anomalia-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 0.72rem;
+  color: var(--texto-mudo);
+  flex-wrap: wrap;
+}
+
+.prev-anomalia-stats strong {
+  color: var(--atencao);
+}
+
+/* ── Recomendações ───────────────────────────────────────── */
+.prev-recomendacoes-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .prev-recomendacoes-lista { grid-template-columns: 1fr; }
+}
+
+.prev-rec-card {
+  padding: var(--space-4);
+  background: rgba(56,189,248,.04);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: border-color var(--trans-rapida), background var(--trans-rapida);
+}
+
+.prev-rec-card:hover {
+  border-color: var(--borda-forte);
+  background: rgba(56,189,248,.08);
+}
+
+.prev-rec-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.prev-rec-icone {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.prev-rec-titulo {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--texto);
+  min-width: 0;
+}
+
+.prev-rec-prioridade {
+  font-family: var(--fonte-titulo);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--raio-pill);
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.prev-rec-desc {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Esqueleto de risco/fluxo ─────────────────────────────── */
+.prev-esqueleto-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}

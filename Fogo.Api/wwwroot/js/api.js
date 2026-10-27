@@ -469,3 +469,64 @@ export async function getHistoricoSerie(filtros = {}) {
   if (USE_MOCK) return [];
   return request('GET', '/api/historico/serie', { query: filtros });
 }
+
+// ── Previsão / Cidade Preditiva (Parte 3) ────────────────────
+/**
+ * GET /api/previsao/risco-regioes
+ * @param {{ data?, forcar? }} filtros
+ */
+export async function getPrevisaoRisco(filtros = {}) {
+  if (USE_MOCK) {
+    await mockDelay(200);
+    return { geradoEm: new Date().toISOString(), data: filtros.data || '', diaSemana: '', faixas: [], itens: [], resumoRegioes: [], totalAlto: 0, explicacao: { oQuePreve: '', dadosUsados: [], comoAjuda: '' } };
+  }
+  return request('GET', '/api/previsao/risco-regioes', { query: filtros });
+}
+
+/**
+ * GET /api/previsao/demanda-agentes
+ * @param {{ data?, forcar? }} filtros
+ */
+export async function getPrevisaoDemandaAgentes(filtros = {}) {
+  if (USE_MOCK) {
+    await mockDelay(200);
+    return { geradoEm: new Date().toISOString(), dataPrevista: '', agentesEmCampoAtual: 0, horas: [], picos: [], explicacao: { oQuePreve: '', dadosUsados: [], comoAjuda: '' } };
+  }
+  return request('GET', '/api/previsao/demanda-agentes', { query: filtros });
+}
+
+/**
+ * GET /api/previsao/manutencao
+ * @param {{ top?, forcar? }} filtros
+ */
+export async function getPrevisaoManutencao(filtros = {}) {
+  if (USE_MOCK) {
+    await mockDelay(200);
+    return { geradoEm: new Date().toISOString(), totalAvaliados: 0, emRisco: 0, percentualEmRisco: 0, limiteRisco: 60, itens: [], explicacao: { oQuePreve: '', dadosUsados: [], comoAjuda: '' } };
+  }
+  return request('GET', '/api/previsao/manutencao', { query: filtros });
+}
+
+/**
+ * GET /api/previsao/anomalias
+ * @param {{ dias?, forcar? }} filtros
+ */
+export async function getPrevisaoAnomalias(filtros = {}) {
+  if (USE_MOCK) {
+    await mockDelay(200);
+    return { geradoEm: new Date().toISOString(), dias: filtros.dias || 7, total: 0, itens: [], explicacao: { oQuePreve: '', dadosUsados: [], comoAjuda: '' } };
+  }
+  return request('GET', '/api/previsao/anomalias', { query: filtros });
+}
+
+/**
+ * GET /api/previsao/recomendacoes
+ * @param {{ forcar? }} filtros
+ */
+export async function getPrevisaoRecomendacoes(filtros = {}) {
+  if (USE_MOCK) {
+    await mockDelay(200);
+    return { geradoEm: new Date().toISOString(), total: 0, itens: [], explicacao: { oQuePreve: '', dadosUsados: [], comoAjuda: '' } };
+  }
+  return request('GET', '/api/previsao/recomendacoes', { query: filtros });
+}
