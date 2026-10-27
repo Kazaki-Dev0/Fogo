@@ -1,7 +1,7 @@
 # PROMETHEUS F.O.G.O. — Ferramenta Onisciente de Gestão e Operações
 
-> Plataforma de gestão e monitoramento em tempo real de equipamentos e agentes de trânsito e segurança, aplicada à cidade de **Marília/SP**.
-> Projeto do **Coder Challenge 2026 – Desafio F.O.G.O.**
+> Plataforma de gestão, monitoramento em tempo real e previsão de equipamentos e agentes de trânsito e segurança, aplicada à cidade de **Marília/SP**.
+> Projeto do **Coder Challenge 2026 – Desafio F.O.G.O.** · Autor: **Kaique Sasaki de Campos**
 
 **Status das partes**
 
@@ -9,7 +9,7 @@
 |---|---|---|
 | 1 | Inventário Inteligente da Cidade | ✅ Concluída |
 | 2 | Central de Operações da Cidade | ✅ Concluída |
-| 3 | Cidade Preditiva | ⏳ Em desenvolvimento *(atualizar esta linha ao concluir)* |
+| 3 | Cidade Preditiva | ✅ Concluída |
 
 ---
 
@@ -17,13 +17,14 @@
 
 **O problema:** a cidade tem dezenas de tipos de equipamentos (radares, câmeras, balanças, totens, patinetes, viaturas...) e de agentes em campo, mas sem uma visão única do que está funcionando, do que falhou e do que precisa de manutenção.
 
-**A solução:** o F.O.G.O. cadastra tudo isso (Parte 1) e transforma os dados em uma **central de comando em tempo real** (Parte 2). Ela responde à pergunta do desafio: *"se algo estiver acontecendo na cidade agora, PROMETHEUS conseguirá perceber?"* Quando um equipamento falha, é furtado ou perde comunicação, o mapa, os alertas e os indicadores mudam **sem recarregar a página**. A Parte 3 usa o histórico para antecipar o que pode acontecer.
+**A solução:** o F.O.G.O. cadastra tudo isso (Parte 1) e transforma os dados em uma **central de comando em tempo real** (Parte 2). Ela responde à pergunta do desafio: *"se algo estiver acontecendo na cidade agora, PROMETHEUS conseguirá perceber?"* Quando um equipamento falha, é furtado ou perde comunicação, o mapa, os alertas e os indicadores mudam **sem recarregar a página**. A Parte 3 usa o histórico para responder à pergunta seguinte: **"o que pode acontecer amanhã?"**. Ela indica onde e quando o risco será maior, quantos agentes serão necessários, quais equipamentos devem falhar primeiro e quais comportamentos fogem do padrão, sempre **explicando o método e os dados usados**.
 
 **O que dá para ver em 5 minutos** (roteiro completo na seção 5):
 1. Login simples, com passo a passo na própria tela.
 2. Mapa de Marília com todos os equipamentos e agentes, coloridos pela situação.
 3. Botão de **modo demonstração**: simula um furto de radar e o sistema reage ao vivo.
 4. Cadastro de um equipamento novo, com campos que mudam conforme o tipo.
+5. **Inteligência Preditiva**: mapa de risco por faixa horária, fluxo previsto, manutenção preditiva, anomalias e recomendações.
 
 ---
 
@@ -47,8 +48,12 @@
 - **Modo demonstração:** simula furto, falha e queda de comunicação, e restaura.
 
 ### Parte 3 — Cidade Preditiva
-<!-- TODO (equipe): substituir este bloco pelo que foi implementado. Para cada previsão, informe: o que prevê, quais dados usa e como ajuda na decisão. -->
-*Em desenvolvimento.* Veja a seção 7 para o plano e o checklist.
+Cinco previsões, todas com estatística simples e **explicável** (sem modelos opacos). Cada painel tem o botão **"Como funciona"**, que mostra *o que é previsto*, *quais dados foram usados* e *como a previsão ajuda a decidir*. Detalhes na seção 7.
+- **Risco por região e faixa horária** no mapa, para o dia escolhido (padrão: amanhã).
+- **Fluxo previsto** de ocorrências por hora (Hoje × Amanhã (IA) × Semana) e agentes recomendados.
+- **Manutenção preditiva:** equipamentos com maior risco de falha e % da frota em risco.
+- **Detecção de anomalias:** horas e regiões fora do padrão histórico.
+- **Recomendações automáticas** priorizadas: reforçar agentes, programar manutenção, investigar anomalias e restaurar equipamentos.
 
 ---
 
@@ -62,7 +67,7 @@ flowchart LR
   subgraph API [Fogo.Api - ASP.NET Core]
     C[Controllers REST + JWT]
     H[SignalR Hub /hubs/operacoes]
-    S[Serviços: Alertas, Dashboard, Região]
+    S[Serviços: Alertas, Dashboard, Região, Previsão]
     W[Worker simulador de telemetria]
   end
   DB[(SQL Server)]
@@ -86,6 +91,12 @@ flowchart LR
 - **Contrato único:** rotas, campos, enums e eventos estão definidos em [`docs/00-CONTRATO-API.md`](docs/00-CONTRATO-API.md), o que mantém front e back padronizados.
 - **Tempo real sem polling:** o servidor envia eventos (`EquipamentoAtualizado`, `AlertaCriado`, `ResumoAtualizado` etc.) pelo SignalR.
 - **Características por tipo em JSON:** cada tipo de equipamento descreve seus campos (`camposSchema`), e o formulário se monta sozinho. Novos tipos não exigem mudar o banco.
+- **Previsões explicáveis:** cada resposta de `/api/previsao/*` traz o bloco `explicacao` (`oQuePreve`, `dadosUsados`, `comoAjuda`) e o motivo de cada pontuação (`fatores`).
+
+**Documentação complementar**
+- [`docs/00-CONTRATO-API.md`](docs/00-CONTRATO-API.md): contrato completo da API (rotas, DTOs, enums e eventos em tempo real).
+- [`README-front.md`](README-front.md): documentação do front-end gerada pelo Antigravity (estrutura de pastas, IDs principais por página e modo mock).
+- **Swagger:** http://localhost:5080/swagger (com o sistema em execução).
 
 ---
 
@@ -103,7 +114,7 @@ flowchart LR
 4. Na **primeira execução**, o sistema cria o banco `FogoDb` e popula os dados de demonstração (pode levar até 1 minuto).
 5. O navegador abre em **http://localhost:5080/login.html**.
 
-Alternativa pelo terminal, dentro da pasta `Fogo.Api`: `dotnet run --launch-profile http`.
+Alternativa pelo terminal, na pasta do projeto da API (`Fogo.Api`): `dotnet run --launch-profile http`.
 
 ### Acesso
 
@@ -121,6 +132,7 @@ Alternativa pelo terminal, dentro da pasta `Fogo.Api`: `dotnet run --launch-prof
 | Quer recomeçar os dados | Apague o banco `FogoDb` no Gerenciador de Objetos do SQL Server e rode de novo: ele é recriado e populado |
 | Mapa sem fundo | Verifique a conexão com a internet (os tiles vêm do CARTO/OpenStreetMap) |
 | Tela de login diz "servidor indisponível" | A API não está rodando ou a porta mudou. Use o perfil `http` (porta 5080) |
+| Previsões vazias ou sem variação | O histórico de 90 dias não foi gerado. Apague o banco `FogoDb` e rode de novo |
 
 ---
 
@@ -136,18 +148,21 @@ Alternativa pelo terminal, dentro da pasta `Fogo.Api`: `dotnet run --launch-prof
 | 6 | Clique em **Restaurar** | Estado e alertas voltam ao normal |
 | 7 | Em **Equipamentos**, crie um equipamento novo | Campos dinâmicos por tipo, CEP automático e coordenada por clique no mapa; o item aparece no mapa |
 | 8 | Em **Agentes**, veja a lista e a troca de status | Cadastro e acompanhamento dos agentes |
-| 9 | Abra **Inteligência Preditiva** | Previsões da Parte 3 *(atualizar quando concluída)* |
+| 9 | Abra **Inteligência Preditiva** | Mapa de risco por faixa horária, fluxo previsto, equipamentos em risco, anomalias e recomendações |
+| 10 | Escolha uma **sexta-feira** no seletor de data | O risco `Alto` se concentra no fim da tarde e à noite, no Centro e na região Sul (padrão do histórico) |
+| 11 | Simule um **mau funcionamento** (modo demo) e clique em **Atualizar previsões** | O equipamento sobe no ranking de manutenção e as recomendações refletem o que acabou de acontecer |
+| 12 | Clique em **ℹ Como funciona** em qualquer painel | O que é previsto, quais dados foram usados e como ajuda na decisão |
 
 ### Onde cada critério de avaliação aparece
 
 | Critério | Onde ver |
 |---|---|
-| Resolver o problema proposto | Partes 1 e 2 completas, com a pergunta do desafio demonstrada no modo demo |
-| Criatividade e inovação | Modo demonstração, formulário dinâmico por tipo, saúde por região, mapa de calor |
-| Efetividade | Alertas com regras automáticas e priorização de manutenção |
-| Desempenho | Cluster no mapa, paginação no banco, atualização só do item afetado, resumo com limite de frequência |
+| Resolver o problema proposto | Partes 1, 2 e 3 completas, da catalogação à previsão, com a pergunta do desafio demonstrada no modo demo |
+| Criatividade e inovação | Modo demonstração, formulário dinâmico por tipo, saúde por região, mapa de calor, previsões que reagem ao que acontece na cidade |
+| Efetividade | Alertas com regras automáticas, priorização de manutenção e recomendações acionáveis |
+| Desempenho | Cluster no mapa, paginação no banco, atualização só do item afetado, resumo com limite de frequência, cache das previsões |
 | Qualidade técnica | Contrato de API único, JWT, migrações, índices no banco, Swagger, código organizado em camadas |
-| Experiência de uso | Tema escuro de central de comando, login guiado, filtros, responsivo (desktop, tablet e celular) |
+| Experiência de uso | Tema escuro de central de comando, login guiado, filtros, explicação em cada previsão, responsivo (desktop, tablet e celular) |
 
 ---
 
@@ -155,78 +170,60 @@ Alternativa pelo terminal, dentro da pasta `Fogo.Api`: `dotnet run --launch-prof
 
 - **Reais:** ruas, bairros e semáforos de Marília extraídos do **OpenStreetMap**, baixados uma vez e guardados no projeto. O sistema não depende de APIs de dados em tempo de execução.
 - **Fictícios, inspirados na realidade:** os ~245 equipamentos, ~45 agentes, alertas, ocorrências e 90 dias de histórico são **gerados por um script** reproduzível (semente fixa). **Não são dados oficiais da Prefeitura ou da Emdurb.** Números de série, CEPs e características são ilustrativos.
-- O histórico possui **padrões embutidos de propósito** (picos em horários e regiões específicas, um modelo de radar com mais falhas, dias atípicos), para a Parte 3 conseguir identificá-los.
+- O histórico possui **padrões embutidos de propósito** (picos em horários e regiões específicas, um modelo de radar com mais falhas, dias atípicos), para que as previsões da Parte 3 tenham o que identificar. Isso deve ser lido como demonstração do método, não como conclusão sobre a cidade real.
 - Em ambiente real, o simulador de telemetria seria substituído pelos dados enviados pelos dispositivos IoT.
 
 ---
 
-## 7. Parte 3 — plano para a equipe concluir
+## 7. Parte 3 — Cidade Preditiva (como funciona)
 
-**Material de apoio:** [`docs/03-RESUMO-EQUIPE-E-GUIA-PARTE-3.md`](docs/03-RESUMO-EQUIPE-E-GUIA-PARTE-3.md) (métodos sugeridos, formato das respostas, prompts e boas práticas).
+As previsões usam **regras e estatística simples**, escolhidas por serem transparentes: cada pontuação vem acompanhada dos fatores que a explicam. Todas as rotas exigem autenticação e ficam em cache por 5 minutos (o botão **Atualizar previsões** ignora o cache).
 
-**O que já está pronto para a Parte 3**
-- Tabelas `Telemetria` e `Ocorrencia` com 90 dias de histórico.
-- Rotas de apoio: `GET /api/historico/telemetria`, `/ocorrencias` e `/serie`.
-- Alerta do tipo `Anomalia` e o hub de tempo real, reservados para alertas preventivos.
-- Página `previsao.html` com os contêineres reservados: `#prev-risco-mapa`, `#prev-grafico-fluxo`, `#prev-manutencao`, `#prev-anomalias` e `#prev-recomendacoes`.
+| # | Previsão | O que prevê | Dados usados | Como ajuda na decisão |
+|---|---|---|---|---|
+| 1 | **Risco por região e faixa horária** | Nível de risco (Baixo, Médio, Alto; índice de 0 a 100) de ocorrências por região em faixas de 2 h, para o dia escolhido | Ocorrências dos últimos 90 dias no mesmo dia da semana, com mais peso aos últimos 14 dias e à gravidade; disponibilidade de equipamentos da região | Mostra **onde e quando** concentrar agentes |
+| 2 | **Fluxo previsto e demanda de agentes** | Ocorrências esperadas por hora (Hoje × Amanhã (IA) × média da semana) e agentes recomendados | Média histórica da hora no mesmo dia da semana; agentes em campo no momento | Dimensiona o **efetivo necessário** por hora |
+| 3 | **Manutenção preditiva** | Índice de risco de falha por equipamento e % da frota em risco | Taxa de falhas do modelo (até 40 pts), manutenção atrasada (25), falhas dos últimos 30 dias (25) e situação atual (10) | **Prioriza** quais equipamentos revisar antes de falharem |
+| 4 | **Detecção de anomalias** | Horas e regiões com ocorrências muito acima do esperado | *z-score* contra o histórico da mesma região, dia da semana e hora (anomalia: z ≥ 2,5 e ao menos 3 ocorrências) | Alerta sobre **comportamentos fora do padrão** que podem indicar um problema |
+| 5 | **Recomendações automáticas** | Lista priorizada de ações (Alta, Média, Baixa) | Saídas das previsões 1, 3 e 4 e a saúde atual das regiões | Transforma a previsão em **ação concreta** |
 
-**Previsões sugeridas (escolher 3 ou 4 e fazer bem-feitas)**
+**Rotas**
 
-| # | Previsão | Método | Onde aparece |
-|---|---|---|---|
-| 1 | Índice de risco por região e horário | Média ponderada das ocorrências por região, dia da semana e hora, com mais peso aos últimos 14 dias | `#prev-risco-mapa` |
-| 2 | Demanda de reforço de agentes | Média sazonal esperada de ocorrências versus agentes em campo | `#prev-grafico-fluxo` |
-| 3 | Manutenção preditiva | Pontuação de risco por equipamento: taxa de falha do modelo, dias sem manutenção, falhas recentes | `#prev-manutencao` |
-| 4 | Detecção de anomalias | *z-score* por região, dia da semana e hora | `#prev-anomalias` |
-| 5 | Recomendações automáticas | Regras *se-então* sobre as saídas anteriores | `#prev-recomendacoes` |
+| Rota | Parâmetros |
+|---|---|
+| `GET /api/previsao/risco-regioes` | `data` (padrão: amanhã) |
+| `GET /api/previsao/demanda-agentes` | `data` (padrão: amanhã) |
+| `GET /api/previsao/manutencao` | `top` (padrão: 20) |
+| `GET /api/previsao/anomalias` | `dias` (padrão: 7) |
+| `GET /api/previsao/recomendacoes` | — |
 
-**Regras do projeto para manter a integração**
-1. Toda rota, campo ou enum novo entra **primeiro** em `docs/00-CONTRATO-API.md`.
-2. Rotas em `/api/previsao/*`, respostas com `geradoEm` e o bloco `explicacao` (`oQuePrevê`, `dadosUsados`, `comoAjuda`).
-3. IDs HTML `prev-*` em kebab-case, funções em camelCase, classes CSS com prefixo `fogo-`, DTOs terminando em `Dto`.
-4. Mudanças no banco só por migração (`Add-Migration` e `Update-Database`).
+Todas aceitam `forcar=true` e devolvem `geradoEm` e `explicacao`.
 
-### Checklist final da equipe
-
-| # | Item | Responsável | Status |
-|---|---|---|---|
-| 1 | Back da Parte 3 (`PrevisaoService` e `PrevisaoController`) | [PREENCHER] | ☐ |
-| 2 | Front da Parte 3 (`previsao.html` e `previsao.js`) | [PREENCHER] | ☐ |
-| 3 | Atualizar o contrato com as rotas `/api/previsao/*` | [PREENCHER] | ☐ |
-| 4 | Atualizar este README (seções 1, 2, 5 e o status no topo) | [PREENCHER] | ☐ |
-| 5 | Preencher a seção 8 (uso de IA) e a seção 10 (equipe) | Todos | ☐ |
-| 6 | Adicionar prints ou GIFs (seção 9) | [PREENCHER] | ☐ |
-| 7 | Teste em outra máquina (clone, F5 e login) | [PREENCHER] | ☐ |
-| 8 | Gravar vídeo de backup da demonstração | [PREENCHER] | ☐ |
-| 9 | Mover os arquivos `00` a `03` para a pasta `docs/` (os links acima dependem disso) | [PREENCHER] | ☐ |
+**Limitações assumidas:** os índices são ferramentas de **priorização**, não probabilidades calibradas; o histórico é sintético; e o método é propositalmente simples. Com dados reais, o passo seguinte seria treinar e validar modelos estatísticos ou de machine learning, mantendo a explicabilidade.
 
 ---
 
 ## 8. Uso de Inteligência Artificial
 
-<!-- TODO (equipe): conferir e completar. Cada integrante deve saber explicar o código gerado. -->
+| Ferramenta | Onde foi usada |
+|---|---|
+| **Gemini Flash 3.6** | Geração do código do back-end (entidades, DTOs, serviços, controllers, seed de dados, simulador e previsões) |
+| **Antigravity** | Geração do código do front-end e do `README-front.md` |
+| **Claude (Anthropic)** | Apoio no planejamento da arquitetura, na definição do contrato da API e na documentação |
 
-| Ferramenta | Onde foi usada | O que a equipe fez/ajustou |
-|---|---|---|
-| Claude (Anthropic) | Planejamento, definição do contrato da API, roteiros de montagem e documentação | [PREENCHER] |
-| Antigravity | Geração do código do front-end a partir do prompt e do contrato | [PREENCHER] |
-| [PREENCHER: ferramenta usada no back-end] | Geração das classes do back-end (entidades, serviços, controllers) | [PREENCHER] |
-
-A estrutura do projeto, as configurações, a integração entre front e back e os testes foram feitos manualmente pela equipe.
+A estrutura do projeto, as configurações (pacotes, banco de dados, autenticação e `Program.cs`), a integração entre front-end e back-end, os testes e a revisão do código gerado foram feitos manualmente pelo autor, que se responsabiliza pelo entendimento de todo o código entregue.
 
 ---
 
 ## 9. Telas
 
-<!-- TODO (equipe): adicionar prints em docs/img/ e referenciar aqui. Exemplo: ![Centro de Operações](docs/img/centro-operacoes.png) -->
-
 | Tela | Imagem |
 |---|---|
-| Login | [PREENCHER] |
-| Centro de Operações | [PREENCHER] |
-| Inventário | [PREENCHER] |
-| Alerta em tempo real (modo demo) | [PREENCHER] |
-| Inteligência Preditiva | [PREENCHER] |
+| Login | ![Login](docs/img/login.png) |
+| Centro de Operações | ![Centro de Operações](docs/img/centro-operacoes.png) |
+| Inventário | ![Inventário](docs/img/inventario.png) |
+| Alerta em tempo real (modo demo) | ![Alerta em tempo real](docs/img/alerta-tempo-real.png) |
+| Inteligência Preditiva | ![Inteligência Preditiva](docs/img/inteligencia-preditiva.png) |
 
 ---
 
@@ -235,37 +232,13 @@ A estrutura do projeto, as configurações, a integração entre front e back e 
 - Os dados são sintéticos e o simulador de telemetria faz o papel dos dispositivos IoT.
 - A autenticação é simples (perfis `Admin` e `Gestor`, ambos com as mesmas permissões).
 - A chave JWT do `appsettings.json` é **somente de desenvolvimento** e deve ser trocada em produção.
-- Próximos passos: integração com os dispositivos reais, perfis com permissões distintas, notificações para as equipes em campo e modelos de previsão treinados com dados reais.
+- As previsões são heurísticas explicáveis, não modelos treinados e validados.
+- Próximos passos: integração com os dispositivos reais, perfis com permissões distintas, notificações para as equipes em campo, publicação de alertas preventivos (`Anomalia`) em tempo real e modelos de previsão treinados com dados reais.
 
 ---
 
-## 11. Equipe
+## 11. Autor
 
 | Nome | Responsabilidade |
 |---|---|
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-
----
-
-## 12. Estrutura do repositório
-
-```
-/
-├── README.md
-├── docs/                        00-CONTRATO-API.md, 01-BACKEND-INSTRUCOES.md,
-│                                02-FRONTEND-PROMPT-ANTIGRAVITY.md, 03-RESUMO-EQUIPE-E-GUIA-PARTE-3.md
-└── Fogo.Api/
-    ├── Controllers/  Rotas REST
-    ├── Data/         AppDbContext e Seed (dados iniciais)
-    ├── Dtos/         Modelos de entrada e saída da API
-    ├── Hubs/         SignalR (tempo real)
-    ├── Migrations/   Histórico do banco
-    ├── Models/       Entidades e enums
-    ├── Services/     Regras de negócio (alertas, dashboard, regiões)
-    ├── Workers/      Simulador de telemetria
-    ├── wwwroot/      Front-end (login, centro de operações, inventário, agentes, previsão)
-    ├── appsettings.json
-    └── Program.cs
-```
+| **Kaique Sasaki de Campos** | Projeto individual: arquitetura, back-end, banco de dados, front-end, integração, testes e documentação |
