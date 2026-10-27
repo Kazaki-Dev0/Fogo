@@ -299,35 +299,59 @@ function _configurarModal() {
   // Geocodificação
   document.getElementById('btn-geocodificar')?.addEventListener('click', _geocodificar);
 }
+function _atualizarTamanhoMapaPicker() {
+    setTimeout(() => {
+        if (!st.mapaPicker) return;
+        st.mapaPicker.invalidateSize();
+        if (st.marcadorPicker) {
+            st.mapaPicker.setView(st.marcadorPicker.getLatLng(), st.mapaPicker.getZoom());
+        } else {
+            st.mapaPicker.setView(MAPA_CENTRO, 13);
+        }
+    }, 250);
+}
+
+// Reabilita o formulário (ele fica travado depois do modo "somente leitura")
+function _habilitarForm() {
+    document.querySelectorAll('#form-equipamento input, #form-equipamento select, #form-equipamento textarea')
+        .forEach(el => { el.disabled = false; });
+    const btnSalvar = document.getElementById('btn-salvar-equipamento');
+    if (btnSalvar) btnSalvar.style.display = '';
+}
 
 function _abrirNovo() {
-  st.modoEdicao = null;
-  const titulo = document.getElementById('eq-modal-titulo');
-  if (titulo) titulo.textContent = 'Novo equipamento';
-  document.getElementById('form-equipamento')?.reset();
-  document.getElementById('eq-campos-dinamicos').innerHTML = '';
-  _limparErrosForm();
-  _resetarMapaPicker();
-  abrirModal('modal-equipamento');
+    st.modoEdicao = null;
+    const titulo = document.getElementById('eq-modal-titulo');
+    if (titulo) titulo.textContent = 'Novo equipamento';
+    _habilitarForm();
+    document.getElementById('form-equipamento')?.reset();
+    document.getElementById('eq-campos-dinamicos').innerHTML = '';
+    _limparErrosForm();
+    _resetarMapaPicker();
+    abrirModal('modal-equipamento');
+    _atualizarTamanhoMapaPicker();
 }
 
 async function _abrirEdicao(id, soLeitura = false) {
-  st.modoEdicao = id;
-  const titulo = document.getElementById('eq-modal-titulo');
-  if (titulo) titulo.textContent = soLeitura ? 'Detalhes do equipamento' : 'Editar equipamento';
+    st.modoEdicao = id;
+    const titulo = document.getElementById('eq-modal-titulo');
+    if (titulo) titulo.textContent = soLeitura ? 'Detalhes do equipamento' : 'Editar equipamento';
 
-  document.getElementById('form-equipamento')?.reset();
-  document.getElementById('eq-campos-dinamicos').innerHTML = '';
-  _limparErrosForm();
-  abrirModal('modal-equipamento');
+    _habilitarForm();
+    document.getElementById('form-equipamento')?.reset();
+    document.getElementById('eq-campos-dinamicos').innerHTML = '';
+    _limparErrosForm();
+    _resetarMapaPicker();
+    abrirModal('modal-equipamento');
+    _atualizarTamanhoMapaPicker();
 
-  try {
-    const eq = await getEquipamento(id);
-    _preencherFormulario(eq, soLeitura);
-  } catch (err) {
-    mostrarToast('Erro ao carregar equipamento.', 'atencao');
-    fecharModal('modal-equipamento');
-  }
+    try {
+        const eq = await getEquipamento(id);
+        _preencherFormulario(eq, soLeitura);
+    } catch (err) {
+        mostrarToast('Erro ao carregar equipamento.', 'atencao');
+        fecharModal('modal-equipamento');
+    }
 }
 
 function _preencherFormulario(eq, soLeitura = false) {
@@ -596,7 +620,7 @@ function _configurarMapaPicker() {
     zoomControl: true
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap © CARTO',
     subdomains: 'abcd'
   }).addTo(st.mapaPicker);
@@ -627,6 +651,7 @@ function _moverMarcadorPicker(lat, lon) {
       })
     }).addTo(st.mapaPicker);
   }
+  st.mapaPicker.invalidateSize();
   st.mapaPicker.setView([lat, lon], Math.max(st.mapaPicker.getZoom(), 15));
 }
 
