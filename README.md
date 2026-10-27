@@ -219,11 +219,16 @@ A estrutura do projeto, as configurações (pacotes, banco de dados, autenticaç
 
 | Tela | Imagem |
 |---|---|
-| Login | ![Login](docs/img/login.png) |
-| Centro de Operações | ![Centro de Operações](docs/img/centro-operacoes.png) |
-| Inventário | ![Inventário](docs/img/inventario.png) |
-| Alerta em tempo real (modo demo) | ![Alerta em tempo real](docs/img/alerta-tempo-real.png) |
-| Inteligência Preditiva | ![Inteligência Preditiva](docs/img/inteligencia-preditiva.png) |
+| Login | ![Login](<img width="1920" height="952" alt="image" src="https://github.com/user-attachments/assets/0b699954-8384-468f-b3d8-bedb4ffc0bd4" />
+) |
+| Centro de Operações | ![Centro de Operações](<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97f31bb0-eaf6-4b02-ba5e-aff9fdf1ff08" />
+) |
+| Inventário | ![Inventário](<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3271442d-14a2-4686-a4fb-fbdd9c59640b" />
+) |
+| Alerta em tempo real (modo demo) | ![Alerta em tempo real](<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c93f1bfd-7edf-4181-8143-c56cb6ec8a58" />
+) |
+| Inteligência Preditiva | ![Inteligência Preditiva](<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d6ce3feb-e204-4e4d-a2b8-2d9af39b53df" />
+) |
 
 ---
 
